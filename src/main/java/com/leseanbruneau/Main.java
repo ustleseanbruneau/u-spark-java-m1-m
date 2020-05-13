@@ -13,22 +13,41 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		List<Double> inputData = new ArrayList<>();
-		inputData.add(35.5);
-		inputData.add(12.49943);
-		inputData.add(90.32);
-		inputData.add(20.32);
+		List<Integer> inputData = new ArrayList<>();
+		inputData.add(35);
+		inputData.add(12);
+		inputData.add(90);
+		inputData.add(20);
 		
 		Logger.getLogger("org.apache").setLevel(Level.WARN);
 		
 		SparkConf conf = new SparkConf().setAppName("startingSpark").setMaster("local[*]");
 		JavaSparkContext sc = new JavaSparkContext(conf);
 		
-		JavaRDD<Double> myRdd = sc.parallelize(inputData);
+		JavaRDD<Integer> myRdd = sc.parallelize(inputData);
 		
-		Double result = myRdd.reduce( (value1, value2) -> value1 + value2 );
+		Integer result = myRdd.reduce( (value1, value2) -> value1 + value2 );
+		
+		JavaRDD<Double> sqrtRdd = myRdd.map( value -> Math.sqrt(value) );
+		
+		//sqrtRdd.foreach( value -> System.out.println(value)  );
+		
+		// For single processor
+		//sqrtRdd.foreach( System.out::println );
+		
+		// For multiple CPUs - if there is a not serializable error
+		sqrtRdd.collect().forEach( System.out::println );
 		
 		System.out.println(result);
+		
+		// how many elements in the sqrtRdd
+		//System.out.println(sqrtRdd.count());
+		
+		// how many elements in the sqrtRdd
+		// using just map and reduce
+		JavaRDD<Long> singleIntegerRdd = sqrtRdd.map( value -> 1L );
+		Long count = singleIntegerRdd.reduce((value1, value2) -> value1 + value2);
+		System.out.println(count);
 		
 		sc.close();
 
