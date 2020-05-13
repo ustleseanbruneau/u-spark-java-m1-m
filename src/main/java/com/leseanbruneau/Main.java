@@ -9,6 +9,8 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
+import scala.Tuple2;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -24,31 +26,10 @@ public class Main {
 		SparkConf conf = new SparkConf().setAppName("startingSpark").setMaster("local[*]");
 		JavaSparkContext sc = new JavaSparkContext(conf);
 		
-		JavaRDD<Integer> myRdd = sc.parallelize(inputData);
-		
-		Integer result = myRdd.reduce( (value1, value2) -> value1 + value2 );
-		
-		JavaRDD<Double> sqrtRdd = myRdd.map( value -> Math.sqrt(value) );
-		
-		//sqrtRdd.foreach( value -> System.out.println(value)  );
-		
-		// For single processor
-		//sqrtRdd.foreach( System.out::println );
-		
-		// For multiple CPUs - if there is a not serializable error
-		sqrtRdd.collect().forEach( System.out::println );
-		
-		System.out.println(result);
-		
-		// how many elements in the sqrtRdd
-		//System.out.println(sqrtRdd.count());
-		
-		// how many elements in the sqrtRdd
-		// using just map and reduce
-		JavaRDD<Long> singleIntegerRdd = sqrtRdd.map( value -> 1L );
-		Long count = singleIntegerRdd.reduce((value1, value2) -> value1 + value2);
-		System.out.println(count);
-		
+		JavaRDD<Integer> originalIntegers = sc.parallelize(inputData);
+		JavaRDD<Tuple2<Integer, Double>> sqrtRdd = originalIntegers.map( value -> new Tuple2<>(value, Math.sqrt(value)) );
+
+				
 		sc.close();
 
 	}
