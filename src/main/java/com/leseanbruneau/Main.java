@@ -45,10 +45,16 @@ public class Main {
 		
 		JavaPairRDD<Long, String> sorted = switched.sortByKey(false);
 		
-		List<Tuple2<Long, String>> results = sorted.take(50);
+		
+		//sorted = sorted.coalesce(1);
+		
+		//System.out.println("There are " + sorted.getNumPartitions() + " partitions");
+		
+		//sorted.collect().forEach(System.out::println);
+		
+		
+		List<Tuple2<Long, String>> results = sorted.take(10);
 		results.forEach(System.out::println);
-
-
 		
 		sc.close();
 
